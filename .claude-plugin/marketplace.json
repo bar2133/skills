@@ -1,0 +1,20 @@
+{
+  "name": "bar2133-skills",
+  "description": "A curated collection of agent skills by bar2133",
+  "owner": {
+    "name": "bar2133",
+    "email": "bar2133@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "bar2133-skills",
+      "description": "Agent skills collection: coding workflows, best practices, and productivity tools",
+      "version": "0.1.0",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/git-worktree"
+      ]
+    }
+  ]
+}

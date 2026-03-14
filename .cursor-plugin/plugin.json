@@ -1,0 +1,15 @@
+{
+  "name": "bar2133-skills",
+  "displayName": "bar2133 Skills",
+  "description": "A curated collection of agent skills by bar2133",
+  "version": "0.1.0",
+  "author": {
+    "name": "bar2133",
+    "email": "bar2133@gmail.com"
+  },
+  "homepage": "https://github.com/bar2133/skills",
+  "repository": "https://github.com/bar2133/skills",
+  "license": "MIT",
+  "keywords": ["skills", "agents", "coding", "workflows"],
+  "skills": "./skills/"
+}
