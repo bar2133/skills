@@ -95,13 +95,18 @@ Let the user pick one or type their own.
 ```
 Where should I create the worktree(s)?
 
-  1. .worktrees/ inside each repo (project-local, hidden)
-  2. Shared folder at the workspace level (e.g. ../.worktrees/)
-  3. ~/.worktrees/<project>/ (global location)
+  1. .worktrees/<branch-name>/ inside each repo (project-local, hidden)
+  2. Shared folder at the workspace level (e.g. ../.worktrees/<branch-name>/)
+  3. ~/.worktrees/<project>/<branch-name>/ (global location)
   4. Custom path
 
 Which do you prefer?
 ```
+
+In all cases, the worktree directory is named after the branch/feature name. For example,
+if the branch is `bugfix/login-timeout`, worktrees are placed under a `login-timeout/`
+folder within the chosen location. This keeps worktrees organized by the feature or bug
+they relate to.
 
 ### Verify .gitignore (project-local only)
 
