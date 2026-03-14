@@ -108,6 +108,19 @@ if the branch is `bugfix/login-timeout`, worktrees are placed under a `login-tim
 folder within the chosen location. This keeps worktrees organized by the feature or bug
 they relate to.
 
+For multi-repo workspaces, the worktree folder mirrors the original workspace layout so
+that opening it as a new workspace auto-detects all the git repos inside it:
+
+```
+.worktrees/login-timeout/
+├── service-a/        <-- git worktree (auto-detected as git repo)
+├── service-b/        <-- git worktree (auto-detected as git repo)
+└── lib-common/       <-- git worktree (auto-detected as git repo)
+```
+
+The user can open `.worktrees/login-timeout/` directly in their IDE and it will
+automatically recognize each subdirectory as a git repo, just like the original workspace.
+
 ### Verify .gitignore (project-local only)
 
 If the user chose a project-local location, verify it is git-ignored:
