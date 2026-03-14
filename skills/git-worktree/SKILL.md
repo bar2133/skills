@@ -31,17 +31,24 @@ The same pipeline handles 1 repo or N repos:
 
 ## 1. Discover Repos
 
-Detect all git repos in the current workspace:
+Detect all git repos in the current workspace. Use two strategies and combine results:
 
 ```bash
-# Check if current directory is inside a git repo
-git rev-parse --show-toplevel 2>/dev/null
+# Strategy 1: Scan current directory and immediate children for .git directories
+# This works whether you're in a repo, a parent of repos, or anywhere
+find . -maxdepth 2 -name .git -type d 2>/dev/null | sed 's|/.git$||'
 
-# Scan for sibling repos (flat multi-repo layout)
-find . -maxdepth 2 -name .git -type d 2>/dev/null
+# Strategy 2: If currently inside a git repo, also include it
+# (handles the case where cwd is deep inside a single repo)
+git_root=$(git rev-parse --show-toplevel 2>/dev/null) && echo "$git_root"
 ```
 
-Build a list of all discovered repos. Present the results to the user:
+Note: `git rev-parse --show-toplevel` will fail if the current directory is NOT inside
+a git repo (e.g. a plain parent folder containing multiple repos). That is expected —
+rely on `find` as the primary discovery method, and use `git rev-parse` only as a
+fallback to catch the case where cwd is deep inside a single repo.
+
+Deduplicate the combined results to build the final repo list. Present to the user:
 
 - **If only one repo found:** use it directly, move to step 3.
 - **If multiple repos found:** list them with their current branch and short status,
