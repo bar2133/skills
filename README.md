@@ -44,7 +44,7 @@ Then install:
 
 ```bash
 mkdir skills/my-new-skill
-cp template/SKILL.md skills/my-new-skill/SKILL.md
+cp template/SKILL.md.template skills/my-new-skill/SKILL.md
 ```
 
 2. Edit the `SKILL.md` frontmatter and instructions:
