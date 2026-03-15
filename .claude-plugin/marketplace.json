@@ -13,7 +13,9 @@
       "source": "./",
       "strict": false,
       "skills": [
-        "./skills/git-worktree"
+        "./skills/git-worktree",
+        "./skills/azure-devops-cli",
+        "./skills/azure-devops-workitems"
       ]
     }
   ]

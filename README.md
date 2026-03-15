@@ -37,6 +37,8 @@ Then install:
 | Skill | Description |
 |-------|-------------|
 | [git-worktree](skills/git-worktree/) | Create and manage git worktrees for single-repo and multi-repo workspaces |
+| [azure-devops-cli](skills/azure-devops-cli/) | Install and configure Azure CLI with Azure DevOps extension on macOS |
+| [azure-devops-workitems](skills/azure-devops-workitems/) | Explore and manage Azure DevOps work items: Epics, Features, User Stories, and Tasks |
 
 ## Adding a New Skill
 
