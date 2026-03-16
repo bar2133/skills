@@ -160,12 +160,52 @@ Create a new Epic, Feature, User Story, or Task.
 
 ### Defaults
 
-| Field | Default |
-|-------|---------|
-| Assigned To | Current logged-in user (resolve via `az account show --query "user.name" -o tsv`) |
-| Area Path | `NLASTIC\Data Engineering` |
-| Iteration Path | `NLASTIC` (backlog) |
-| Description | `TBD` (if user does not provide one) |
+| Field          | Default                                                                           |
+| -------------- | --------------------------------------------------------------------------------- |
+| Assigned To    | Current logged-in user (resolve via `az account show --query "user.name" -o tsv`) |
+| Area Path      | `NLASTIC\Data Engineering`                                                        |
+| Iteration Path | `NLASTIC` (backlog)                                                               |
+| Description    | `TBD` (if user does not provide one — see Description section below for format)   |
+
+### Description
+
+When the user provides a description (or you compose one based on context), write it in **Markdown format**.
+Structure the description with headings, bullet points, bold text, and other Markdown elements
+as appropriate for the content. This makes descriptions more readable and organized in Azure DevOps.
+
+**Example — User Story description:**
+
+```markdown
+## Overview
+
+Allow users to reset their password via email link.
+
+## Acceptance Criteria
+
+- User receives a reset link within 60 seconds
+- Link expires after 24 hours
+- Password must meet complexity requirements
+
+## Notes
+
+Depends on the email service integration from Feature #1235.
+```
+
+**Example — Task description:**
+
+```markdown
+## Objective
+
+Write unit tests covering the login API endpoint.
+
+## Scope
+
+- **Happy path:** valid credentials return a JWT token
+- **Error cases:** invalid password, locked account, expired session
+- **Edge cases:** concurrent login attempts
+```
+
+If the user does not provide a description, use the default `TBD`.
 
 ### Area Path
 
@@ -220,18 +260,43 @@ If the user says no or wants edits, let them adjust and re-show the summary.
 
 ### Create command
 
+**Step 1 — Create the work item (without description):**
+
 ```bash
 az boards work-item create \
   --type "<Type>" \
   --title "<Title>" \
   --project "<Project>" \
-  --fields "System.Description=<desc>" \
-           "System.AssignedTo=<user>" \
+  --fields "System.AssignedTo=<user>" \
            "System.IterationPath=<iteration>" \
            "System.AreaPath=<area>" \
            "System.Tags=<tags>" \
-           "Microsoft.VSTS.Common.Priority=<1-4>"
+           "Microsoft.VSTS.Common.Priority=<1-4>" \
+  -o json
 ```
+
+Capture the new work item `id` from the JSON response.
+
+**Step 2 — Set the description in Markdown format via REST API:**
+
+The `az boards` CLI stores descriptions as HTML by default. To store the description as rendered
+Markdown, use the REST API with `multilineFieldsFormat`:
+
+```bash
+az rest --method patch \
+  --uri "https://dev.azure.com/<org>/<project>/_apis/wit/workitems/<id>?api-version=7.1-preview.3" \
+  --resource "499b84ac-1321-427f-aa17-267ca6975798" \
+  --headers "Content-Type=application/json-patch+json" \
+  --body '[
+    {"op": "add", "path": "/fields/System.Description", "value": "<markdown_description>"},
+    {"op": "add", "path": "/multilineFieldsFormat/System.Description", "value": "Markdown"}
+  ]'
+```
+
+Resolve `<org>` and `<project>` from the configured defaults (`az devops configure --list`).
+The `--resource` flag is required for `az rest` to authenticate against Azure DevOps.
+
+**Important:** Once a description is saved in Markdown format, it cannot be reverted to HTML.
 
 ### Link to parent (mandatory for non-Epic types)
 
@@ -286,36 +351,53 @@ If the user says no or wants edits, let them adjust and re-show the summary.
 
 ### Update command
 
+For fields **other than Description**, use the standard update command:
+
 ```bash
 az boards work-item update \
   --id <id> \
   --fields "System.Title=<new_title>" \
            "System.State=<new_state>" \
            "System.AssignedTo=<user>" \
-           "System.Description=<desc>" \
            "Microsoft.VSTS.Common.Priority=<1-4>"
 ```
+
+**If updating the Description**, use the REST API to set/preserve Markdown format:
+
+```bash
+az rest --method patch \
+  --uri "https://dev.azure.com/<org>/<project>/_apis/wit/workitems/<id>?api-version=7.1-preview.3" \
+  --resource "499b84ac-1321-427f-aa17-267ca6975798" \
+  --headers "Content-Type=application/json-patch+json" \
+  --body '[
+    {"op": "replace", "path": "/fields/System.Description", "value": "<markdown_description>"},
+    {"op": "add", "path": "/multilineFieldsFormat/System.Description", "value": "Markdown"}
+  ]'
+```
+
+Use `"op": "replace"` when the description already has a value, `"op": "add"` for new descriptions.
+Both commands can be combined in a single turn if updating description alongside other fields.
 
 **After update:** show a before/after comparison of changed fields and confirm success.
 
 ### Common state transitions
 
-| Type | States |
-|------|--------|
+| Type           | States                        |
+| -------------- | ----------------------------- |
 | Epic / Feature | New, Active, Resolved, Closed |
-| User Story | New, Active, Resolved, Closed |
-| Task | New, Active, Closed |
+| User Story     | New, Active, Resolved, Closed |
+| Task           | New, Active, Closed           |
 
 ---
 
 ## Quick Reference
 
-| Task | Command |
-|------|---------|
-| Query work items | `az boards query --wiql "..." --project <project>` |
-| Show work item | `az boards work-item show --id <id> --expand relations` |
-| Create work item | `az boards work-item create --type <type> --title "<title>" --fields ...` |
-| Update work item | `az boards work-item update --id <id> --fields ...` |
-| Link parent | `az boards work-item relation add --id <id> --relation-type Parent --target-id <pid>` |
-| List area paths | `az boards area team list --team "<team>" --project <project>` |
-| List iterations | `az boards iteration team list --team "<team>" --project <project>` |
+| Task             | Command                                                                               |
+| ---------------- | ------------------------------------------------------------------------------------- |
+| Query work items | `az boards query --wiql "..." --project <project>`                                    |
+| Show work item   | `az boards work-item show --id <id> --expand relations`                               |
+| Create work item | `az boards work-item create --type <type> --title "<title>" --fields ...`             |
+| Update work item | `az boards work-item update --id <id> --fields ...`                                   |
+| Link parent      | `az boards work-item relation add --id <id> --relation-type Parent --target-id <pid>` |
+| List area paths  | `az boards area team list --team "<team>" --project <project>`                        |
+| List iterations  | `az boards iteration team list --team "<team>" --project <project>`                   |
