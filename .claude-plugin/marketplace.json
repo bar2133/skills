@@ -15,7 +15,8 @@
       "skills": [
         "./skills/git-worktree",
         "./skills/azure-devops-cli",
-        "./skills/azure-devops-workitems"
+        "./skills/azure-devops-workitems",
+        "./skills/aiohttp-retry"
       ]
     }
   ]

@@ -39,6 +39,7 @@ Then install:
 | [git-worktree](skills/git-worktree/) | Create and manage git worktrees for single-repo and multi-repo workspaces |
 | [azure-devops-cli](skills/azure-devops-cli/) | Install and configure Azure CLI with Azure DevOps extension on macOS |
 | [azure-devops-workitems](skills/azure-devops-workitems/) | Explore and manage Azure DevOps work items: Epics, Features, User Stories, and Tasks |
+| [aiohttp-retry](skills/aiohttp-retry/) | Implement HTTP request retry logic using aiohttp's native client middleware system |
 
 ## Adding a New Skill
 
