@@ -165,7 +165,30 @@ Create a new Epic, Feature, User Story, or Task.
 | Assigned To    | Current logged-in user (resolve via `az account show --query "user.name" -o tsv`) |
 | Area Path      | `NLASTIC\Data Engineering`                                                        |
 | Iteration Path | `NLASTIC` (backlog)                                                               |
+| Effort         | `2` (Feature only — see Estimation section below)                                 |
 | Description    | `TBD` (if user does not provide one — see Description section below for format)   |
+
+### Estimation
+
+1 story point = 1 working day = 6 net working hours.
+
+**Feature — Effort field** (`Microsoft.VSTS.Scheduling.Effort`):
+
+- Measured in **story points**
+- Default: **2** (= 2 working days / 12 net hours)
+- Set to 2 unless the user specifies a different value
+
+**User Story — Story Points field** (`Microsoft.VSTS.Scheduling.StoryPoints`):
+
+- Measured in **story points**
+- Default: same as the parent Feature's Effort (2 if not specified)
+
+**Task — Original Estimate field** (`Microsoft.VSTS.Scheduling.OriginalEstimate`):
+
+- Measured in **working hours**
+- No default — derive from the parent Feature's Effort when possible
+  (e.g., a Feature with Effort 2 = 12 hours, split across its child Tasks)
+- If the user provides an estimate, use it as-is
 
 ### Description
 
@@ -248,6 +271,7 @@ About to create:
   Assigned To:    bnachlieli@nvidia.com  (from az account)
   Area Path:      NLASTIC\Data Engineering
   Iteration Path: NLASTIC
+  Effort:         2 story points  (= 2 working days / 12 net hours)
   Priority:       2
   Parent:         Epic #1234
   Description:    TBD
@@ -273,6 +297,24 @@ az boards work-item create \
            "System.Tags=<tags>" \
            "Microsoft.VSTS.Common.Priority=<1-4>" \
   -o json
+```
+
+For **Features**, add Effort (story points):
+
+```bash
+           "Microsoft.VSTS.Scheduling.Effort=<story_points>"
+```
+
+For **User Stories**, add Story Points:
+
+```bash
+           "Microsoft.VSTS.Scheduling.StoryPoints=<story_points>"
+```
+
+For **Tasks**, add Original Estimate (hours) if provided:
+
+```bash
+           "Microsoft.VSTS.Scheduling.OriginalEstimate=<hours>"
 ```
 
 Capture the new work item `id` from the JSON response.
@@ -309,6 +351,38 @@ az boards work-item relation add \
 
 **After creation:** display the new item's ID, Title, State, URL, Area Path, Iteration Path,
 and parent link confirmation.
+
+### Auto-create hierarchy under Feature
+
+Whenever a Feature is created, **automatically create a child User Story and a child Task** under it:
+
+**User Story:**
+
+- **Title:** same as the Feature title, unless the user specifies a different name
+- **Story Points:** same as the Feature's Effort (default 2)
+- **Fields:** inherit Assigned To, Area Path, Iteration Path, and Description from the Feature
+- Link to the Feature as its parent
+
+**Task (under the User Story):**
+
+- **Title:** `buffer`, unless the user specifies a different name
+- **Original Estimate:** converted from the User Story's Story Points (story points x 6 hours)
+  (e.g., 2 story points = 12 hours)
+- **Fields:** inherit Assigned To, Area Path, and Iteration Path from the User Story
+- Link to the User Story as its parent
+
+Include all three items in the confirmation summary before creating:
+
+```
+About to create:
+  1) Feature: "Migrate to new API"  (Effort: 2 SP, parent: Epic #1234)
+  2) User Story: "Migrate to new API"  (Story Points: 2, parent: the new Feature)
+  3) Task: "buffer"  (Original Estimate: 12h, parent: the new User Story)
+
+Proceed? (yes / no / edit fields)
+```
+
+After all items are created, display all IDs and their parent-child relationships.
 
 ---
 
