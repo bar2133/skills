@@ -190,6 +190,12 @@ Create a new Epic, Feature, User Story, or Task.
   (e.g., a Feature with Effort 2 = 12 hours, split across its child Tasks)
 - If the user provides an estimate, use it as-is
 
+**Task — Remaining Work field** (`Microsoft.VSTS.Scheduling.RemainingWork`):
+
+- Measured in **working hours**
+- Always set to the **same value as Original Estimate** when creating a new Task
+- This ensures the burndown chart starts correctly from day one
+
 ### Description
 
 When the user provides a description (or you compose one based on context), write it in **Markdown format**.
@@ -311,10 +317,11 @@ For **User Stories**, add Story Points:
            "Microsoft.VSTS.Scheduling.StoryPoints=<story_points>"
 ```
 
-For **Tasks**, add Original Estimate (hours) if provided:
+For **Tasks**, add Original Estimate and Remaining Work (hours) if provided:
 
 ```bash
-           "Microsoft.VSTS.Scheduling.OriginalEstimate=<hours>"
+           "Microsoft.VSTS.Scheduling.OriginalEstimate=<hours>" \
+           "Microsoft.VSTS.Scheduling.RemainingWork=<hours>"
 ```
 
 Capture the new work item `id` from the JSON response.
@@ -368,6 +375,7 @@ Whenever a Feature is created, **automatically create a child User Story and a c
 - **Title:** `buffer`, unless the user specifies a different name
 - **Original Estimate:** converted from the User Story's Story Points (story points x 6 hours)
   (e.g., 2 story points = 12 hours)
+- **Remaining Work:** same value as Original Estimate
 - **Fields:** inherit Assigned To, Area Path, and Iteration Path from the User Story
 - Link to the User Story as its parent
 
@@ -377,7 +385,7 @@ Include all three items in the confirmation summary before creating:
 About to create:
   1) Feature: "Migrate to new API"  (Effort: 2 SP, parent: Epic #1234)
   2) User Story: "Migrate to new API"  (Story Points: 2, parent: the new Feature)
-  3) Task: "buffer"  (Original Estimate: 12h, parent: the new User Story)
+  3) Task: "buffer"  (Original Estimate: 12h, Remaining Work: 12h, parent: the new User Story)
 
 Proceed? (yes / no / edit fields)
 ```
@@ -406,6 +414,7 @@ az boards query --wiql "SELECT [System.Id], [System.Title], [System.State], [Sys
 
 - Title, State, Assigned To, Description
 - Iteration Path, Area Path, Tags, Priority
+- Effort (Feature), Story Points (User Story), Original Estimate & Remaining Work (Task)
 
 ### Confirmation before update
 
@@ -434,6 +443,25 @@ az boards work-item update \
            "System.State=<new_state>" \
            "System.AssignedTo=<user>" \
            "Microsoft.VSTS.Common.Priority=<1-4>"
+```
+
+For **Features**, add Effort if updating:
+
+```bash
+           "Microsoft.VSTS.Scheduling.Effort=<story_points>"
+```
+
+For **User Stories**, add Story Points if updating:
+
+```bash
+           "Microsoft.VSTS.Scheduling.StoryPoints=<story_points>"
+```
+
+For **Tasks**, add Original Estimate and/or Remaining Work if updating:
+
+```bash
+           "Microsoft.VSTS.Scheduling.OriginalEstimate=<hours>" \
+           "Microsoft.VSTS.Scheduling.RemainingWork=<hours>"
 ```
 
 **If updating the Description**, use the REST API to set/preserve Markdown format:
