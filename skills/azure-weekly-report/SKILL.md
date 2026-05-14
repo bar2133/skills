@@ -65,9 +65,10 @@ The report is organized **by Epic**, not by team member.
    - Run these calls in parallel where possible.
 3. **Walk the full parent chain upward** — repeat fetching unknown parents until every chain reaches an Epic or a node with no parent. The chain can be 2–4 levels deep (e.g. Task → User Story → Feature → Epic). Fetch each level in a parallel batch before moving to the next.
 4. Build the hierarchy: **Epic** → list of **Features** → list of **User Stories/Bugs/Tasks** in the sprint.
-5. Items whose parent chain never reaches an Epic go under **"Sprint Management"**. This includes:
-   - Items with `System.Parent = null` (true orphans — no parent at all).
-   - Items whose chain stops at a Feature or User Story that itself has no parent.
+5. **Collapse generic Tasks to User Story level.** If a User Story's child Tasks all have generic/boilerplate titles (e.g. `implementation`, `planning`, `buffer`, `support`, `design`, `review`, `testing`, `documentation` — case-insensitive), report at the **User Story level only** and omit the individual Tasks from bullet lists. These Tasks still count toward status calculations (e.g. Feature effective status, remaining work) but are not shown as separate line items. If a User Story has at least one Task with a **specific, meaningful title** (i.e. not in the generic list), show all non-buffer Tasks as nested bullets under it.
+6. Items whose parent chain never reaches an Epic (orphans):
+   - Items with `System.Parent = null` (true orphans — no parent at all) — include them under the most relevant Epic section based on their title/context, or list them at the end of the report if no match.
+   - Items whose chain stops at a Feature or User Story that itself has no parent — same treatment.
    - Bugs always go under the **"Bugs"** section regardless of parent chain.
 
 ### 5. Per-Epic analysis
@@ -88,8 +89,10 @@ For each Epic section:
 
 ### 6. Identify risks
 
-- Infer from: items **Overdue** (TargetDate in the past), **New** with large RemainingWork, **Critical/High** severity bugs, unassigned items, buffer capacity consumed, GA timeline pressure.
+- Infer from: items **Overdue** (TargetDate in the past), items still Active near sprint end, **New** with large RemainingWork, **Critical/High** severity bugs, unassigned items.
+- Format: `> **Risk:** [#ID Title](link) still Active — may carry over to [Month].`
 - Place risks as a single blockquote line under each Epic section (not separate tables).
+- Focus on carry-over risk: items that are still Active and likely to spill into the next sprint/month.
 
 ### 7. Produce the report
 
@@ -114,57 +117,41 @@ The report must be **compact and scannable**. Use bullet lists for completed/pla
 
 ---
 
-## [Epic Name](epic-link) — Short Label ✅ On Track / ⚠️ At Risk / ✅ Done
+## 1. [#ID Epic Name](epic-link) — Short Label ✅ On Track / ⚠️ At Risk / ✅ Done
 
-**Objective:** [1-2 sentence summary of what we're trying to achieve in this area]
+- **Objective:** [1-2 sentence summary of what we're trying to achieve in this area]
+- **Done this week:**
+  - [#ID Feature Title](link) — _Feature_
+    - [#ID Child US/Task Title](link) (SP:N) — _Assignee_
+    - [#ID Child US/Task Title](link) (SP:N) — _Assignee_
+  - [#ID US Title](link) (SP:N) — _Assignee_
+- **In progress:**
+  - [#ID Title](link) — _Assignee_ (contextual note)
+- **Next week:**
+  - [#ID Title](link) (SP:N) — _Assignee_
 
-**Done this week:**
-
-- [#ID](link) Feature/US: Title — _Assignee_ ← includes [#child](link), [#child](link)
-- [#ID](link) Title (SP:N) — _Assignee_
-
-**In progress:**
-
-- [#ID](link) Title (SP:N, details) — _Assignee_
-
-**Next week:** [#ID](link) Title (SP:N) — _Assignee_ | [#ID](link) Title — _Assignee_
-
-> **Risk:** [One-line risk with linked IDs]. [Mitigation].
+> **Risk:** [#ID Title](link) still Active — may carry over to [Month].
 
 ---
 
-## Completed Epics ✅
+## 2. [#ID Epic Name](epic-link)
 
-- [Epic Name](epic-link): Short objective — [#F1](link), [#F2](link) closed
-- [Epic Name](epic-link): Short objective — [#F1](link) closed
-
----
-
-## Bugs ⚠️ [N] High-Severity Open
-
-**Done this week:** [#ID](link) title — _Assignee_ | [#ID](link) title — _Assignee_
-
-**In review:** [#ID](link) title (severity) — _Assignee_
-
-**Open — next week:**
-
-| ID          | Title | Sev  | Assignee | Note          |
-| ----------- | ----- | ---- | -------- | ------------- |
-| [#ID](link) | title | High | name     | **Unplanned** |
-
-> **Risk:** [Description with linked IDs]. [Mitigation].
+(same structure as above)
 
 ---
 
-## Sprint Management & GA Readiness
+## Bugs - [N] High-Severity Open
 
-| ID          | Title        | State        |
-| ----------- | ------------ | ------------ |
-| [#ID](link) | title (SP:N) | State — note |
+- **Done this sprint:**
+  - [#ID Title](link) — _Assignee_
+  - [#ID Title](link) — _Assignee_
+- **In review:**
+  - [#ID Title](link) (severity) — _Assignee_ (contextual note)
+- **Open:**
 
-> **Risk:** [If applicable].
-
----
+| ID          | Title | Sev    | Assignee | Note          |
+| ----------- | ----- | ------ | -------- | ------------- |
+| [#ID](link) | title | Medium | _name_   | **Unplanned** |
 
 _[View sprint board](sprint-board-url)_
 ```
@@ -173,20 +160,23 @@ _[View sprint board](sprint-board-url)_
 
 ## Formatting rules
 
-- **Clickable links**: Every work item ID must be a markdown link: `[#ID](https://dev.azure.com/NCS-RnD/NLASTIC/_workitems/edit/ID)`
+- **Clickable links**: Every work item must be a markdown link with **ID and title inside the link text**: `[#ID Title](https://dev.azure.com/NCS-RnD/NLASTIC/_workitems/edit/ID)`. Example: `[#12 NYG - Nlastic Yaml Generator](https://dev.azure.com/NCS-RnD/NLASTIC/_workitems/edit/12)`.
 - **Assignee**: First name only, in italics: _Michael_, _Yair_, _Tomer_, _Sari_, _Tzvi_
 - **Story points**: Inline as `(SP:N)` — omit if not set
-- **Completed Features**: Show Feature as the primary line, child User Stories as `← includes [#ID](link)` on the same line
-- **Completed User Stories** (no Feature parent): Show as individual bullet points
-- **Next week items**: Combine on a single line separated by `|` to save space
-- **Status indicators**: Place on the same line as the Epic heading: `✅ On Track`, `⚠️ At Risk`, `✅ Done`
-- **Risks**: Use blockquote (`>`) under each section — one line, not a table
+- **Sprint header**: Include a one-line sprint summary after the title: `**Sprint:** [name](board-url) ([Start] – [End]) | [X] of [Y] stories closed | [N] Features closed this week`.
+- **Numbered Epic sections**: Epics are numbered sequentially (`## 1.`, `## 2.`, etc.) with status indicator on the heading: `✅ On Track`, `⚠️ At Risk`, or `✅ Done`.
+- **Completed Features in "Done this week"**: Show the Feature as a parent bullet with `— _Feature_` label (the work item type). Indent child User Stories/Tasks as nested bullets below it, each with `— _Assignee_`.
+- **Completed User Stories** (no Feature parent): Show as individual bullet points with `— _Assignee_`
+- **Next week items**: List as individual bullet points under `- **Next week:**`
+- **Contextual notes**: Add brief context in parentheses after the assignee when relevant — e.g. `(moved to Daher from Bar)`, `(in second review round)`, `(review scheduled for next week)`. These help readers understand the current state beyond what ADO status shows.
+- **Risks**: Use blockquote (`>`) under each Epic section — format as: `> **Risk:** [#ID Title](link) still Active — may carry over to [Month].`
 - **Unplanned items**: Bold tag `**Unplanned**` in the Note column for bugs or in-line for stories
-- **Epics that are fully done**: When multiple Epics are Done, group them under a single **"Completed Epics"** heading. Show each as one line: Epic name link, short objective, and key Features/items closed (e.g. `- [Epic](link): [objective] — [#F1](link), [#F2](link)`). A single Done Epic can stay as its own section condensed to ~3 lines.
+- **Bugs section heading**: Use `## Bugs - [N] High-Severity Open` (show count of high-severity open bugs). Sub-sections use `- **Done this sprint:**`, `- **In review:**`, `- **Open:**`.
 - **No "Type" column** in tables — the context makes it clear
 - **No long descriptions** — title is sufficient
-- **Buffer items**: Items titled "buffer" (case-insensitive) are capacity placeholders — exclude them from bullet lists and tables. They still count toward story/task totals in the sprint header.
-- **Tables only for**: bugs list (severity column needed) and sprint management items
+- **Buffer items**: Items titled "buffer" (case-insensitive) are capacity placeholders — exclude them from bullet lists and tables.
+- **Generic-task collapsing**: When a User Story has only generic Tasks (titles like `implementation`, `planning`, `buffer`, `support`, `design`, `review`, `testing`, `documentation`), display only the User Story — do not list individual Tasks. This keeps the report at the right level of abstraction and avoids noise from boilerplate task breakdowns.
+- **Tables only for**: open bugs list (where severity column adds value)
 
 ---
 
@@ -197,10 +187,15 @@ _[View sprint board](sprint-board-url)_
 - [ ] WIQL query scoped by both iteration path **and** area path.
 - [ ] All work items in iteration loaded (parallel fetches, batched if >200).
 - [ ] Epic → Feature → User Story hierarchy built via parent resolution.
-- [ ] Report organized by Epic (not by team member).
-- [ ] Each Epic has: objective, on/off track status, done/in-progress/next-week items, risks.
+- [ ] Sprint header with story/feature closure counts included.
+- [ ] Report organized by numbered Epic sections (not by team member).
+- [ ] Each Epic has: objective, status indicator (✅/⚠️), done/in-progress/next-week items, risks.
 - [ ] Unplanned items identified and tagged.
-- [ ] All IDs are clickable ADO links.
+- [ ] All work item links use `[#ID Title](url)` format (ID and title inside the link text).
+- [ ] Completed Features shown as parent bullets with child items nested below.
+- [ ] User Stories with only generic Tasks (implementation, planning, buffer, support, etc.) reported at US level — Tasks omitted.
+- [ ] Contextual notes added where relevant (reassignments, review status, etc.).
 - [ ] Report is compact — bullet lists, not heavy tables.
-- [ ] Risks include mitigations and are placed as blockquotes under each section.
+- [ ] Risks placed as blockquotes under each section in `still Active — may carry over` format.
+- [ ] Bugs section uses "Done this sprint" / "In review" / "Open" sub-sections.
 - [ ] If user asked to "send" or "save", file written or wiki updated.
